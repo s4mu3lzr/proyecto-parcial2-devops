@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="Panel moderno para gestionar el inventario de ítems.">
+  <title>Inventario — Panel de gestión</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="Inventario, inicio">
+        <span class="brand-mark" aria-hidden="true">in</span>
+        <span><strong>inventario</strong><small>Panel de gestión</small></span>
+      </a>
+
+      <div class="workspace-label">ESPACIO DE TRABAJO</div>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <button class="nav-link active" id="nav-dashboard" data-testid="tab-dashboard" data-view="dashboard" type="button">
+          <span class="nav-icon" aria-hidden="true">◫</span> Dashboard
+        </button>
+        <button class="nav-link" id="nav-catalog" data-testid="tab-catalog" data-view="catalog" type="button">
+          <span class="nav-icon" aria-hidden="true">▤</span> Catálogo / CRUD
+        </button>
+        <button class="nav-link" id="nav-bulk" data-testid="tab-bulk" data-view="bulk" type="button">
+          <span class="nav-icon" aria-hidden="true">⇧</span> Carga masiva
+        </button>
+        <button class="nav-link" id="nav-tools" data-testid="tab-tools" data-view="tools" type="button">
+          <span class="nav-icon" aria-hidden="true">⌘</span> Herramientas
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="connection-card">
+          <span class="connection-dot" id="sidebar-health-dot"></span>
+          <div><strong>Conexión API</strong><small id="sidebar-health-label">Comprobando...</small></div>
+        </div>
+        <button id="toggle-theme" data-testid="toggle-theme" class="theme-toggle" type="button" aria-label="Cambiar a modo oscuro">
+          <span id="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Modo oscuro</span>
+        </button>
+        <div class="sidebar-footnote">Inventario · v1.0</div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Espacio de trabajo</span><span class="breadcrumb-slash">/</span><strong id="page-title">Dashboard</strong></div>
+        <div class="topbar-actions">
+          <span class="today-label" id="current-date"></span>
+          <button class="icon-button" id="refresh-button" data-testid="refresh-button" type="button" aria-label="Actualizar datos" title="Actualizar datos">↻</button>
+          <span class="avatar" aria-label="Usuario">I</span>
+        </div>
+      </header>
+
+      <section class="view-panel active" id="dashboard-view" data-testid="dashboard-view">
+        <div class="page-heading">
+          <div><p class="eyebrow">RESUMEN GENERAL</p><h1>Tu inventario, de un vistazo</h1><p class="subtitle">Monitorea y administra todos tus ítems desde un solo lugar.</p></div>
+          <button class="button button-primary" id="dashboard-create-button" data-testid="dashboard-create-button" type="button"><span aria-hidden="true">＋</span> Nuevo ítem</button>
+        </div>
+        <div class="metrics-grid">
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-label">Estado del servidor</span><span class="metric-icon icon-green" aria-hidden="true">⌁</span></div>
+            <div class="metric-value health-value" id="health-status" data-testid="health-status" aria-live="polite"><span class="status-dot"></span>Comprobando</div>
+            <div class="metric-note" id="health-detail">Conectando con la API</div>
+          </article>
+          <article class="metric-card">
+            <div class="metric-top"><span class="metric-label">Total de ítems</span><span class="metric-icon icon-violet" aria-hidden="true">▤</span></div>
+            <div class="metric-value" id="items-count" data-testid="items-count" aria-live="polite">—</div>
+            <div class="metric-note">Registros en el inventario</div>
+          </article>
+          <article class="metric-card last-item-metric" id="last-item-card" data-testid="last-item-card">
+            <div class="metric-top"><span class="metric-label">Último ítem registrado</span><span class="metric-icon icon-blue" aria-hidden="true">✦</span></div>
+            <div class="last-item-content" id="last-item-content"><strong>Sin registros todavía</strong><span>El último ítem aparecerá aquí</span></div>
+          </article>
+        </div>
+        <section class="surface dashboard-catalog">
+          <div class="section-heading">
+            <div><h2>Ítems recientes</h2><p>Una vista rápida de tu catálogo actual.</p></div>
+            <button class="button button-secondary button-small" id="dashboard-view-all" data-testid="dashboard-view-all" type="button">Ver catálogo <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table compact-table">
+              <thead><tr><th>ÍTEM</th><th>ID</th><th>DESCRIPCIÓN</th><th></th></tr></thead>
+              <tbody id="dashboard-items-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state dashboard-empty" id="dashboard-empty-state" data-testid="dashboard-empty-state" hidden>
+            <span class="empty-icon" aria-hidden="true">▤</span><strong>Aún no hay ítems</strong><span>Crea tu primer ítem para comenzar.</span>
+            <button class="button button-primary button-small" id="empty-create-button" data-testid="empty-create-button" type="button">Crear primer ítem</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="view-panel" id="catalog-view" data-testid="catalog-view" hidden>
+        <div class="page-heading">
+          <div><p class="eyebrow">GESTIÓN DE REGISTROS</p><h1>Catálogo de ítems</h1><p class="subtitle">Busca, filtra y administra los registros de tu inventario.</p></div>
+          <button class="button button-primary" id="create-item-button" data-testid="create-item-button" type="button"><span aria-hidden="true">＋</span> Nuevo ítem</button>
+        </div>
+        <section class="surface catalog-surface">
+          <div class="catalog-toolbar">
+            <label class="search-box" for="search-input"><span aria-hidden="true">⌕</span><input id="search-input" data-testid="search-input" type="search" placeholder="Buscar por nombre, descripción o ID..." autocomplete="off"></label>
+            <label class="select-field"><span class="sr-only">Ordenar ítems</span><select id="sort-select" data-testid="sort-select">
+              <option value="id-asc">ID: menor a mayor</option><option value="id-desc">ID: mayor a menor</option><option value="name-asc">Nombre: A a Z</option><option value="name-desc">Nombre: Z a A</option>
+            </select></label>
+            <label class="select-field filter-select"><span class="sr-only">Filtrar por longitud</span><select id="length-filter" data-testid="length-filter">
+              <option value="all">Todas las longitudes</option><option value="short">Nombre corto (3–10)</option><option value="medium">Nombre medio (11–30)</option><option value="long">Nombre largo (31+)</option>
+            </select></label>
+            <label class="select-field filter-select"><span class="sr-only">Filtrar por estado</span><select id="status-filter" data-testid="status-filter">
+              <option value="all">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option>
+            </select></label>
+          </div>
+          <div class="results-line"><span id="results-summary" data-testid="results-summary">Cargando ítems...</span><button class="text-button" id="clear-filters-button" data-testid="clear-filters-button" type="button">Limpiar filtros</button></div>
+          <div class="table-wrap">
+            <table class="data-table" id="items-table" data-testid="items-table">
+              <thead><tr><th>ÍTEM</th><th>ID</th><th>DESCRIPCIÓN</th><th>ESTADO</th><th class="actions-heading">ACCIONES</th></tr></thead>
+              <tbody id="items-table-body"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="empty-state" data-testid="empty-state" hidden>
+            <span class="empty-icon" aria-hidden="true">⌕</span><strong id="empty-state-title">No se encontraron ítems</strong><span id="empty-state-message">Prueba con otros términos o limpia los filtros.</span>
+            <button class="button button-secondary button-small" id="empty-clear-button" data-testid="empty-clear-button" type="button">Limpiar búsqueda</button>
+          </div>
+          <div class="pagination">
+            <label class="page-size-control">Filas por página
+              <select id="page-size" data-testid="page-size"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option></select>
+            </label>
+            <span id="pagination-info" data-testid="pagination-info">0–0 de 0</span>
+            <div class="pagination-buttons"><button id="previous-page" data-testid="previous-page" class="page-button" type="button" aria-label="Página anterior" disabled>‹</button><button id="next-page" data-testid="next-page" class="page-button" type="button" aria-label="Página siguiente" disabled>›</button></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view-panel" id="bulk-view" data-testid="bulk-view" hidden>
+        <div class="page-heading">
+          <div><p class="eyebrow">IMPORTACIÓN</p><h1>Carga masiva</h1><p class="subtitle">Agrega varios ítems al inventario en una sola operación.</p></div>
+        </div>
+        <div class="content-grid">
+          <section class="surface form-surface">
+            <div class="section-heading"><div><h2>Importar ítems</h2><p>Usa JSON o una lista separada por comas.</p></div><span class="soft-icon" aria-hidden="true">⇧</span></div>
+            <label class="field-label" for="bulk-input">Datos para importar <span class="required-mark">*</span></label>
+            <textarea id="bulk-input" data-testid="bulk-input" class="bulk-textarea" rows="12" placeholder='[{"name":"Teclado","description":"Teclado inalámbrico"},{"name":"Mouse","description":"Mouse óptico"}]'></textarea>
+            <div class="format-hint"><strong>Formatos aceptados</strong><code>JSON: [{"name":"Nombre","description":"Descripción"}]</code><code>Una línea por ítem: Nombre, Descripción</code></div>
+            <div class="field-error" id="bulk-error" data-testid="bulk-error" role="alert"></div>
+            <div class="form-actions"><button class="button button-primary" id="bulk-submit-button" data-testid="bulk-submit-button" type="button">Importar ítems <span aria-hidden="true">→</span></button></div>
+          </section>
+          <aside class="surface info-surface">
+            <span class="info-badge" aria-hidden="true">i</span><h2>Antes de importar</h2>
+            <ul><li>Cada ítem debe incluir un nombre y una descripción.</li><li>Los campos aceptan entre 3 y 100 caracteres.</li><li>Los registros se enviarán al endpoint de carga masiva.</li></ul>
+            <div class="info-callout">La importación se procesa como una sola solicitud. Revisa los datos antes de continuar.</div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view-panel" id="tools-view" data-testid="tools-view" hidden>
+        <div class="page-heading">
+          <div><p class="eyebrow">MANTENIMIENTO</p><h1>Herramientas</h1><p class="subtitle">Respalda o reinicia los datos de tu inventario.</p></div>
+        </div>
+        <div class="tools-grid">
+          <article class="surface tool-card">
+            <span class="tool-icon tool-blue" aria-hidden="true">⤓</span><h2>Crear respaldo</h2><p>Genera una copia de seguridad de los registros actuales del inventario.</p>
+            <button class="button button-secondary" id="backup-button" data-testid="backup-button" type="button">Generar respaldo <span aria-hidden="true">→</span></button>
+          </article>
+          <article class="surface tool-card">
+            <span class="tool-icon tool-amber" aria-hidden="true">⌫</span><h2>Limpiar registros</h2><p>Elimina los ítems actuales manteniendo la estructura del almacenamiento.</p>
+            <button class="button button-warning" id="clear-items-button" data-testid="clear-items-button" type="button">Limpiar ítems</button>
+          </article>
+          <article class="surface tool-card danger-tool">
+            <span class="tool-icon tool-red" aria-hidden="true">⟲</span><h2>Truncar inventario</h2><p>Reinicia los registros de forma permanente. Esta acción no se puede deshacer.</p>
+            <button class="button button-danger" id="truncate-items-button" data-testid="truncate-items-button" type="button">Truncar registros</button>
+          </article>
+        </div>
+        <div class="surface tools-note"><span class="note-icon" aria-hidden="true">!</span><p><strong>Importante:</strong> las acciones de limpieza y truncado son permanentes. Se solicitará confirmación antes de ejecutarlas.</p></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop" data-testid="modal-backdrop" hidden>
+    <section class="modal" id="item-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" data-testid="item-modal" hidden>
+      <div class="modal-heading"><div><p class="eyebrow" id="modal-eyebrow">NUEVO REGISTRO</p><h2 id="modal-title">Crear ítem</h2></div><button class="modal-close" id="modal-close" data-testid="modal-close" type="button" aria-label="Cerrar">×</button></div>
+      <form id="item-form" novalidate>
+        <input type="hidden" id="item-id">
+        <div class="form-field"><label class="field-label" for="item-name">Nombre <span class="required-mark">*</span></label><input id="item-name" data-testid="item-name" type="text" maxlength="100" autocomplete="off" placeholder="Ej. Monitor Dell"><div class="field-hint">Entre 3 y 100 caracteres.</div><div class="field-error" id="error-name" data-testid="error-name" role="alert"></div></div>
+        <div class="form-field"><label class="field-label" for="item-description">Descripción <span class="required-mark">*</span></label><textarea id="item-description" data-testid="item-description" rows="4" maxlength="100" placeholder="Describe brevemente este ítem..."></textarea><div class="field-hint">Entre 3 y 100 caracteres.</div><div class="field-error" id="error-description" data-testid="error-description" role="alert"></div></div>
+        <div class="form-actions"><button class="button button-secondary" id="cancel-form-button" data-testid="cancel-form-button" type="button">Cancelar</button><button class="button button-primary" id="save-item-button" data-testid="save-item-button" type="submit">Guardar ítem</button></div>
+      </form>
+    </section>
+
+    <section class="modal" id="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-title" data-testid="detail-modal" hidden>
+      <div class="modal-heading"><div><p class="eyebrow">DETALLE DEL REGISTRO</p><h2 id="detail-title">Detalle del ítem</h2></div><button class="modal-close close-modal-button" data-testid="detail-modal-close" type="button" aria-label="Cerrar">×</button></div>
+      <div class="detail-body" id="detail-body"></div>
+      <div class="form-actions"><button class="button button-secondary close-modal-button" data-testid="detail-close-button" type="button">Cerrar</button></div>
+    </section>
+
+    <section class="modal confirm-modal" id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message" data-testid="confirm-modal" hidden>
+      <span class="confirm-icon" aria-hidden="true">!</span><h2 id="confirm-title">¿Estás seguro?</h2><p id="confirm-message">Esta acción no se puede deshacer.</p>
+      <div class="form-actions"><button class="button button-secondary" id="confirm-cancel" data-testid="confirm-cancel" type="button">Cancelar</button><button class="button button-danger" id="confirm-accept" data-testid="confirm-accept" type="button">Confirmar</button></div>
+    </section>
+  </div>
+  <div class="toast" id="toast-alert" data-testid="toast-alert" role="status" aria-live="polite" hidden><span class="toast-icon" aria-hidden="true">✓</span><span id="toast-message"></span><button id="toast-close" data-testid="toast-close" type="button" aria-label="Cerrar notificación">×</button></div>
+</body>
+</html>

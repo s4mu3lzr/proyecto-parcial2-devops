@@ -1,0 +1,37 @@
+{
+  "name": "evaluacion-2-inventario",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aplicación web de gestión de inventario con Express y SQLite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test:api": "cross-env NODE_ENV=test jest --coverage --runInBand",
+    "test:e2e": "playwright test",
+    "test": "npm run test:api && npm run test:e2e"
+  },
+  "engines": {
+    "node": ">=20.6"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/api-logs": "^0.222.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.80.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.222.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.222.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.222.0",
+    "@opentelemetry/resources": "^2.11.0",
+    "@opentelemetry/sdk-logs": "^0.222.0",
+    "@opentelemetry/sdk-metrics": "^2.11.0",
+    "@opentelemetry/sdk-node": "^0.222.0",
+    "@opentelemetry/semantic-conventions": "^1.45.0",
+    "better-sqlite3": "^12.2.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "cross-env": "^10.1.0",
+    "jest": "^30.5.2",
+    "supertest": "^7.3.2"
+  }
+}
