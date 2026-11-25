@@ -454,3 +454,8 @@ describe('backup and global request errors', () => {
     expect(response.body.error).toMatch(/tamaño permitido/i);
   });
 });
+
+
+test('Simulación de fallo controlado para validar bloqueo CI/CD', () => {
+  expect(1).toBe(2);
+});
